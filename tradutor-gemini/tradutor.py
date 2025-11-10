@@ -1,9 +1,12 @@
 """
-🌐 TRADUTOR GEMINI - Multi Idiomas
-Traduz roteiros para vários idiomas usando Google Gemini AI
+🌐 TRADUTOR ADAPTATIVO GEMINI - Multi Idiomas
+Adapta roteiros culturalmente para vários idiomas usando Google Gemini AI
+
+Não faz tradução literal - adapta expressões, idiomas e referências
+culturais para soar natural em cada idioma!
 
 Autor: Claude
-Data: 2024
+Data: 2025
 """
 
 from flask import Flask, render_template_string, request, jsonify, send_file
@@ -26,7 +29,7 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tradutor Gemini</title>
+    <title>Tradutor Adaptativo Gemini</title>
     <style>
         * {
             margin: 0;
@@ -361,8 +364,8 @@ HTML_TEMPLATE = """
 <body>
     <div class="container">
         <header class="main-header">
-            <h1>🌐 Tradutor Gemini</h1>
-            <p>Traduza seus roteiros para vários idiomas instantaneamente</p>
+            <h1>🌐 Tradutor Adaptativo Gemini</h1>
+            <p>Adapte seus roteiros culturalmente para cada idioma com IA</p>
         </header>
 
         <div class="main-card">
@@ -773,15 +776,21 @@ def translate():
 
         # Configurar Gemini
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-pro-latest')
+        model = genai.GenerativeModel('gemini-2.5-flash')
 
-        # Criar prompt
+        # Criar prompt para adaptação cultural
         full_language_name = LANGUAGE_NAMES.get(target_language, language_name)
-        prompt = f"""Translate the following Portuguese text to {full_language_name}.
+        prompt = f"""You are an expert translator and cultural adapter. Adapt the following Portuguese script/text to {full_language_name}.
 
-IMPORTANT: Return ONLY the translation, without any explanations, notes, or additional text.
+IMPORTANT INSTRUCTIONS:
+- DO NOT just translate word-by-word
+- ADAPT the content to sound natural and native in {full_language_name}
+- Adjust idioms, expressions, and cultural references to be appropriate for the target language
+- Keep the same tone, message, and intent
+- Make it sound like it was originally written in {full_language_name}
+- Return ONLY the adapted text, without explanations or notes
 
-Text to translate:
+Portuguese text to adapt:
 {text}"""
 
         # Fazer tradução
@@ -889,9 +898,10 @@ def generate_all():
 # ============================================
 
 if __name__ == '__main__':
-    print("=" * 50)
-    print("🌐 TRADUTOR GEMINI - Multi Idiomas")
-    print("=" * 50)
+    print("=" * 60)
+    print("🌐 TRADUTOR ADAPTATIVO GEMINI - Multi Idiomas")
+    print("Adaptação cultural inteligente com IA")
+    print("=" * 60)
     print("\n✅ Servidor iniciando...")
     print("📝 Acesse: http://localhost:5000")
     print("\n💡 Para parar: Ctrl+C")
