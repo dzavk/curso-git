@@ -773,7 +773,7 @@ def translate():
 
         # Configurar Gemini
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
 
         # Criar prompt
         full_language_name = LANGUAGE_NAMES.get(target_language, language_name)
