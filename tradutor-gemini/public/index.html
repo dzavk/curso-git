@@ -3,150 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tradutor Adaptivo Gemini</title>
+    <title>Tradutor Gemini - Multi Idiomas</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🌍 Tradutor Adaptivo Gemini</h1>
-            <p class="subtitle">Traduza seus roteiros para múltiplos idiomas com IA</p>
+        <!-- HEADER -->
+        <header class="main-header">
+            <div class="header-content">
+                <h1>🌐 Tradutor Gemini</h1>
+                <p>Traduza seus roteiros para vários idiomas instantaneamente</p>
+            </div>
         </header>
 
-        <div class="card">
-            <div class="section">
-                <label for="apiKey">
-                    <span class="label-icon">🔑</span>
-                    Sua API Key do Gemini
-                </label>
+        <!-- CARD PRINCIPAL -->
+        <div class="main-card">
+            <!-- API KEY -->
+            <div class="input-section api-section">
+                <div class="section-header">
+                    <h3>🔑 Configuração</h3>
+                </div>
                 <input
                     type="password"
                     id="apiKey"
-                    placeholder="Cole sua API key aqui..."
-                    class="input-field"
+                    placeholder="Cole sua API Key do Gemini aqui"
+                    class="modern-input"
                 >
-                <small class="help-text">
-                    Obtenha sua chave em: <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a>
-                </small>
+                <a href="https://makersuite.google.com/app/apikey" target="_blank" class="help-link">
+                    ➜ Não tem API Key? Clique aqui para obter
+                </a>
             </div>
 
-            <div class="section">
-                <label>
-                    <span class="label-icon">🗣️</span>
-                    Selecione os Idiomas de Tradução
-                </label>
-                <div class="languages-grid">
-                    <label class="language-checkbox">
+            <!-- IDIOMAS -->
+            <div class="input-section">
+                <div class="section-header">
+                    <h3>🗣️ Escolha os Idiomas</h3>
+                    <button id="selectAll" class="select-all-btn">Todos</button>
+                </div>
+                <div class="languages-container">
+                    <label class="lang-item">
                         <input type="checkbox" value="es" data-lang="Espanhol">
-                        <span>🇪🇸 Espanhol</span>
+                        <span class="lang-label">🇪🇸 Espanhol</span>
                     </label>
-                    <label class="language-checkbox">
+                    <label class="lang-item">
                         <input type="checkbox" value="en" data-lang="Inglês">
-                        <span>🇺🇸 Inglês</span>
+                        <span class="lang-label">🇺🇸 Inglês</span>
                     </label>
-                    <label class="language-checkbox">
+                    <label class="lang-item">
                         <input type="checkbox" value="ru" data-lang="Russo">
-                        <span>🇷🇺 Russo</span>
+                        <span class="lang-label">🇷🇺 Russo</span>
                     </label>
-                    <label class="language-checkbox">
+                    <label class="lang-item">
                         <input type="checkbox" value="ar" data-lang="Árabe">
-                        <span>🇸🇦 Árabe</span>
+                        <span class="lang-label">🇸🇦 Árabe</span>
                     </label>
-                    <label class="language-checkbox">
+                    <label class="lang-item">
                         <input type="checkbox" value="tr" data-lang="Turco">
-                        <span>🇹🇷 Turco</span>
+                        <span class="lang-label">🇹🇷 Turco</span>
                     </label>
-                    <label class="language-checkbox">
+                    <label class="lang-item">
                         <input type="checkbox" value="pl" data-lang="Polonês">
-                        <span>🇵🇱 Polonês</span>
+                        <span class="lang-label">🇵🇱 Polonês</span>
                     </label>
-                    <label class="language-checkbox">
+                    <label class="lang-item">
                         <input type="checkbox" value="de" data-lang="Alemão">
-                        <span>🇩🇪 Alemão</span>
+                        <span class="lang-label">🇩🇪 Alemão</span>
                     </label>
-                    <label class="language-checkbox">
+                    <label class="lang-item">
                         <input type="checkbox" value="fr" data-lang="Francês">
-                        <span>🇫🇷 Francês</span>
+                        <span class="lang-label">🇫🇷 Francês</span>
                     </label>
-                    <label class="language-checkbox">
+                    <label class="lang-item">
                         <input type="checkbox" value="it" data-lang="Italiano">
-                        <span>🇮🇹 Italiano</span>
+                        <span class="lang-label">🇮🇹 Italiano</span>
                     </label>
-                    <label class="language-checkbox">
+                    <label class="lang-item">
                         <input type="checkbox" value="ro" data-lang="Romeno">
-                        <span>🇷🇴 Romeno</span>
+                        <span class="lang-label">🇷🇴 Romeno</span>
                     </label>
                 </div>
-                <button id="selectAll" class="btn-secondary">Selecionar Todos</button>
             </div>
 
-            <div class="section">
-                <label>
-                    <span class="label-icon">📝</span>
-                    Seu Roteiro em Português
-                </label>
-                <div class="input-tabs">
-                    <button class="tab-btn active" data-tab="text">Colar Texto</button>
-                    <button class="tab-btn" data-tab="file">Fazer Upload</button>
+            <!-- TEXTO/ARQUIVO -->
+            <div class="input-section">
+                <div class="section-header">
+                    <h3>📝 Seu Roteiro</h3>
                 </div>
 
-                <div id="textTab" class="tab-content active">
-                    <textarea
-                        id="scriptText"
-                        placeholder="Cole seu roteiro aqui..."
-                        rows="10"
-                        class="input-field"
-                    ></textarea>
-                </div>
-
-                <div id="fileTab" class="tab-content">
-                    <div class="file-upload-area" id="fileUploadArea">
-                        <input type="file" id="fileInput" accept=".txt,.doc,.docx,.srt" hidden>
-                        <div class="upload-content">
-                            <span class="upload-icon">📁</span>
-                            <p>Clique ou arraste um arquivo aqui</p>
-                            <small>Formatos: TXT, DOC, DOCX, SRT</small>
-                        </div>
-                        <div id="fileName" class="file-name"></div>
+                <!-- ÁREA DE UPLOAD SIMPLIFICADA -->
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" id="fileInput" accept=".txt" hidden>
+                    <div class="upload-placeholder">
+                        <div class="upload-icon-big">📄</div>
+                        <p class="upload-title">Arraste seu arquivo TXT aqui</p>
+                        <p class="upload-subtitle">ou</p>
+                        <button type="button" class="browse-btn" id="browseBtn">Escolher Arquivo</button>
+                        <p class="upload-hint">Apenas arquivos .txt</p>
+                    </div>
+                    <div id="fileInfo" class="file-info" style="display: none;">
+                        <span class="file-icon">✓</span>
+                        <span id="fileNameDisplay">arquivo.txt</span>
+                        <button type="button" class="remove-file-btn" id="removeFileBtn">✕</button>
                     </div>
                 </div>
+
+                <!-- OU COLAR TEXTO -->
+                <div class="divider">
+                    <span>OU COLE SEU TEXTO</span>
+                </div>
+
+                <textarea
+                    id="scriptText"
+                    placeholder="Cole seu roteiro em português aqui..."
+                    class="modern-textarea"
+                    rows="8"
+                ></textarea>
             </div>
 
-            <div class="section">
-                <button id="translateBtn" class="btn-primary">
-                    <span class="btn-icon">🚀</span>
-                    Traduzir Agora
-                </button>
-            </div>
+            <!-- BOTÃO TRADUZIR -->
+            <button id="translateBtn" class="translate-btn">
+                <span class="btn-text">🚀 Traduzir Agora</span>
+            </button>
         </div>
 
-        <div id="progressSection" class="card" style="display: none;">
-            <h3>⏳ Traduzindo...</h3>
-            <div class="progress-bar">
-                <div id="progressFill" class="progress-fill"></div>
+        <!-- PROGRESSO -->
+        <div id="progressSection" class="progress-card" style="display: none;">
+            <h3 class="progress-title">⏳ Traduzindo...</h3>
+            <div class="progress-bar-container">
+                <div id="progressFill" class="progress-bar-fill"></div>
+                <span id="progressPercent" class="progress-percent">0%</span>
             </div>
-            <p id="progressText" class="progress-text">Iniciando...</p>
+            <p id="progressText" class="progress-status">Iniciando...</p>
         </div>
 
-        <div id="resultsSection" class="card" style="display: none;">
-            <h3>✅ Traduções Concluídas!</h3>
+        <!-- RESULTADOS -->
+        <div id="resultsSection" class="results-card" style="display: none;">
+            <h3 class="results-title">✅ Traduções Prontas!</h3>
 
-            <div class="download-all-section">
-                <h4>Baixar Todas as Traduções</h4>
-                <div class="button-group">
-                    <button class="btn-download" onclick="downloadAll('txt')">
-                        <span>📄</span> Baixar Todos (TXT)
+            <div class="download-all-box">
+                <p class="download-all-title">Baixar todos os idiomas:</p>
+                <div class="download-all-btns">
+                    <button class="dl-btn" onclick="downloadAll('txt')">
+                        📄 TXT
                     </button>
-                    <button class="btn-download" onclick="downloadAll('docx')">
-                        <span>📘</span> Baixar Todos (DOCX)
+                    <button class="dl-btn" onclick="downloadAll('docx')">
+                        📘 DOCX
                     </button>
-                    <button class="btn-download" onclick="downloadAll('srt')">
-                        <span>🎬</span> Baixar Todos (SRT)
+                    <button class="dl-btn" onclick="downloadAll('srt')">
+                        🎬 SRT
                     </button>
                 </div>
             </div>
 
-            <div id="translationResults"></div>
+            <div id="translationResults" class="translations-list"></div>
         </div>
     </div>
 

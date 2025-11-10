@@ -1,111 +1,150 @@
-// Estado da aplicação
+// ============================================
+// ESTADO GLOBAL
+// ============================================
 let translations = {};
-let currentFile = null;
+let currentFileContent = null;
 
-// Elementos do DOM
+// ============================================
+// ELEMENTOS DO DOM
+// ============================================
 const apiKeyInput = document.getElementById('apiKey');
 const selectAllBtn = document.getElementById('selectAll');
 const translateBtn = document.getElementById('translateBtn');
 const scriptTextArea = document.getElementById('scriptText');
 const fileInput = document.getElementById('fileInput');
-const fileUploadArea = document.getElementById('fileUploadArea');
-const fileName = document.getElementById('fileName');
+const browseBtn = document.getElementById('browseBtn');
+const uploadZone = document.getElementById('uploadZone');
+const fileInfo = document.getElementById('fileInfo');
+const fileNameDisplay = document.getElementById('fileNameDisplay');
+const removeFileBtn = document.getElementById('removeFileBtn');
 const progressSection = document.getElementById('progressSection');
 const resultsSection = document.getElementById('resultsSection');
 const progressFill = document.getElementById('progressFill');
+const progressPercent = document.getElementById('progressPercent');
 const progressText = document.getElementById('progressText');
 const translationResults = document.getElementById('translationResults');
 
-// Tabs
-const tabBtns = document.querySelectorAll('.tab-btn');
-const textTab = document.getElementById('textTab');
-const fileTab = document.getElementById('fileTab');
-
-// Alternar tabs
-tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const tabName = btn.getAttribute('data-tab');
-
-        tabBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        if (tabName === 'text') {
-            textTab.classList.add('active');
-            fileTab.classList.remove('active');
-            currentFile = null;
-        } else {
-            textTab.classList.remove('active');
-            fileTab.classList.add('active');
-            scriptTextArea.value = '';
-        }
-    });
+// ============================================
+// CARREGAR API KEY SALVA
+// ============================================
+window.addEventListener('load', () => {
+    const savedKey = localStorage.getItem('gemini_api_key');
+    if (savedKey) {
+        apiKeyInput.value = savedKey;
+    }
 });
 
-// Selecionar todos os idiomas
+// Salvar API Key quando mudar
+apiKeyInput.addEventListener('input', () => {
+    localStorage.setItem('gemini_api_key', apiKeyInput.value);
+});
+
+// ============================================
+// SELECIONAR TODOS OS IDIOMAS
+// ============================================
 selectAllBtn.addEventListener('click', () => {
-    const checkboxes = document.querySelectorAll('.language-checkbox input[type="checkbox"]');
+    const checkboxes = document.querySelectorAll('.lang-item input[type="checkbox"]');
     const allChecked = Array.from(checkboxes).every(cb => cb.checked);
 
     checkboxes.forEach(cb => {
         cb.checked = !allChecked;
     });
 
-    selectAllBtn.textContent = allChecked ? 'Selecionar Todos' : 'Desmarcar Todos';
+    selectAllBtn.textContent = allChecked ? 'Todos' : 'Limpar';
 });
 
-// Upload de arquivo
-fileUploadArea.addEventListener('click', () => {
+// ============================================
+// UPLOAD DE ARQUIVO
+// ============================================
+
+// Clicar no botão de procurar
+browseBtn.addEventListener('click', () => {
     fileInput.click();
 });
 
-fileUploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    fileUploadArea.classList.add('dragover');
+// Clicar na zona de upload
+uploadZone.addEventListener('click', (e) => {
+    if (e.target === uploadZone || e.target.closest('.upload-placeholder')) {
+        fileInput.click();
+    }
 });
 
-fileUploadArea.addEventListener('dragleave', () => {
-    fileUploadArea.classList.remove('dragover');
+// Drag and drop
+uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
 });
 
-fileUploadArea.addEventListener('drop', (e) => {
+uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('dragover');
+});
+
+uploadZone.addEventListener('drop', (e) => {
     e.preventDefault();
-    fileUploadArea.classList.remove('dragover');
+    uploadZone.classList.remove('dragover');
 
     if (e.dataTransfer.files.length > 0) {
-        handleFileSelect(e.dataTransfer.files[0]);
+        handleFile(e.dataTransfer.files[0]);
     }
 });
 
+// Quando selecionar arquivo
 fileInput.addEventListener('change', (e) => {
     if (e.target.files.length > 0) {
-        handleFileSelect(e.target.files[0]);
+        handleFile(e.target.files[0]);
     }
 });
 
-function handleFileSelect(file) {
+// Processar arquivo
+function handleFile(file) {
+    // Verificar se é TXT
+    if (!file.name.endsWith('.txt')) {
+        alert('❌ Por favor, use apenas arquivos .txt!\n\nSe você tem um arquivo Word (.doc ou .docx), abra ele e copie o texto para o campo abaixo.');
+        return;
+    }
+
     const reader = new FileReader();
 
     reader.onload = (e) => {
-        currentFile = {
-            name: file.name,
-            content: e.target.result
-        };
-        fileName.textContent = `📎 ${file.name}`;
-        fileName.classList.add('show');
+        currentFileContent = e.target.result;
+        scriptTextArea.value = ''; // Limpar textarea
+
+        // Mostrar info do arquivo
+        document.querySelector('.upload-placeholder').style.display = 'none';
+        fileInfo.style.display = 'flex';
+        fileNameDisplay.textContent = file.name;
     };
 
-    reader.readAsText(file);
+    reader.onerror = () => {
+        alert('❌ Erro ao ler o arquivo!');
+    };
+
+    reader.readAsText(file, 'UTF-8');
 }
 
-// Botão de tradução
+// Remover arquivo
+removeFileBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    currentFileContent = null;
+    fileInput.value = '';
+    document.querySelector('.upload-placeholder').style.display = 'block';
+    fileInfo.style.display = 'none';
+});
+
+// ============================================
+// TRADUÇÃO
+// ============================================
+
 translateBtn.addEventListener('click', async () => {
+    // Pegar dados
     const apiKey = apiKeyInput.value.trim();
     const selectedLanguages = getSelectedLanguages();
-    const text = currentFile ? currentFile.content : scriptTextArea.value.trim();
+    const text = currentFileContent || scriptTextArea.value.trim();
 
     // Validações
     if (!apiKey) {
-        alert('❌ Por favor, insira sua API Key do Gemini!');
+        alert('❌ Por favor, cole sua API Key do Gemini!');
+        apiKeyInput.focus();
         return;
     }
 
@@ -115,7 +154,7 @@ translateBtn.addEventListener('click', async () => {
     }
 
     if (!text) {
-        alert('❌ Por favor, insira um texto ou faça upload de um arquivo!');
+        alert('❌ Por favor, cole um texto ou faça upload de um arquivo!');
         return;
     }
 
@@ -124,7 +163,7 @@ translateBtn.addEventListener('click', async () => {
 });
 
 function getSelectedLanguages() {
-    const checkboxes = document.querySelectorAll('.language-checkbox input[type="checkbox"]:checked');
+    const checkboxes = document.querySelectorAll('.lang-item input[type="checkbox"]:checked');
     return Array.from(checkboxes).map(cb => ({
         code: cb.value,
         name: cb.getAttribute('data-lang')
@@ -132,22 +171,21 @@ function getSelectedLanguages() {
 }
 
 async function startTranslation(apiKey, languages, text) {
-    // Limpar resultados anteriores
+    // Resetar
     translations = {};
     resultsSection.style.display = 'none';
-
-    // Mostrar progresso
     progressSection.style.display = 'block';
     translateBtn.disabled = true;
 
     let completed = 0;
     const total = languages.length;
 
+    // Traduzir cada idioma
     for (const language of languages) {
         progressText.textContent = `Traduzindo para ${language.name}...`;
 
         try {
-            const response = await fetch('http://localhost:3000/translate', {
+            const response = await fetch('/translate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -161,7 +199,8 @@ async function startTranslation(apiKey, languages, text) {
             });
 
             if (!response.ok) {
-                throw new Error(`Erro ao traduzir para ${language.name}`);
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro desconhecido');
             }
 
             const result = await response.json();
@@ -174,7 +213,7 @@ async function startTranslation(apiKey, languages, text) {
             console.error(`Erro em ${language.name}:`, error);
             translations[language.code] = {
                 name: language.name,
-                text: `Erro ao traduzir: ${error.message}`,
+                text: `❌ Erro: ${error.message}`,
                 error: true
             };
         }
@@ -182,17 +221,22 @@ async function startTranslation(apiKey, languages, text) {
         completed++;
         const percentage = Math.round((completed / total) * 100);
         progressFill.style.width = `${percentage}%`;
+        progressPercent.textContent = `${percentage}%`;
     }
 
     // Concluído
-    progressText.textContent = '✅ Todas as traduções concluídas!';
+    progressText.textContent = '✅ Traduções concluídas!';
     translateBtn.disabled = false;
 
     setTimeout(() => {
         progressSection.style.display = 'none';
         displayResults();
-    }, 1000);
+    }, 1500);
 }
+
+// ============================================
+// EXIBIR RESULTADOS
+// ============================================
 
 function displayResults() {
     translationResults.innerHTML = '';
@@ -202,8 +246,8 @@ function displayResults() {
         item.className = 'translation-item';
 
         const preview = data.error
-            ? `<p style="color: var(--danger-color);">${data.text}</p>`
-            : data.text.substring(0, 300) + (data.text.length > 300 ? '...' : '');
+            ? `<p style="color: #ef4444; font-weight: 600;">${data.text}</p>`
+            : data.text.substring(0, 250) + (data.text.length > 250 ? '...' : '');
 
         item.innerHTML = `
             <div class="translation-header">
@@ -213,13 +257,13 @@ function displayResults() {
             ${!data.error ? `
             <div class="translation-actions">
                 <button class="btn-download" onclick="downloadSingle('${code}', 'txt')">
-                    <span>📄</span> TXT
+                    📄 TXT
                 </button>
                 <button class="btn-download" onclick="downloadSingle('${code}', 'docx')">
-                    <span>📘</span> DOCX
+                    📘 DOCX
                 </button>
                 <button class="btn-download" onclick="downloadSingle('${code}', 'srt')">
-                    <span>🎬</span> SRT
+                    🎬 SRT
                 </button>
             </div>
             ` : ''}
@@ -229,16 +273,19 @@ function displayResults() {
     });
 
     resultsSection.style.display = 'block';
-    resultsSection.scrollIntoView({ behavior: 'smooth' });
+    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Download individual
+// ============================================
+// DOWNLOADS
+// ============================================
+
 async function downloadSingle(languageCode, format) {
     const data = translations[languageCode];
     if (!data || data.error) return;
 
     try {
-        const response = await fetch('http://localhost:3000/generate-file', {
+        const response = await fetch('/generate-file', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -256,7 +303,7 @@ async function downloadSingle(languageCode, format) {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `traducao_${data.name.toLowerCase()}.${format}`;
+        a.download = `${data.name.toLowerCase().replace(/\s+/g, '_')}.${format}`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -264,11 +311,10 @@ async function downloadSingle(languageCode, format) {
 
     } catch (error) {
         console.error('Erro no download:', error);
-        alert('❌ Erro ao baixar arquivo');
+        alert('❌ Erro ao baixar arquivo: ' + error.message);
     }
 }
 
-// Download de todos
 async function downloadAll(format) {
     const validTranslations = Object.entries(translations)
         .filter(([_, data]) => !data.error)
@@ -283,7 +329,7 @@ async function downloadAll(format) {
     }
 
     try {
-        const response = await fetch('http://localhost:3000/generate-all', {
+        const response = await fetch('/generate-all', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -294,13 +340,13 @@ async function downloadAll(format) {
             })
         });
 
-        if (!response.ok) throw new Error('Erro ao gerar arquivo');
+        if (!response.ok) throw new Error('Erro ao gerar ZIP');
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `todas_traducoes.zip`;
+        a.download = `todas_traducoes_${format}.zip`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -308,19 +354,6 @@ async function downloadAll(format) {
 
     } catch (error) {
         console.error('Erro no download:', error);
-        alert('❌ Erro ao baixar arquivos');
+        alert('❌ Erro ao baixar arquivos: ' + error.message);
     }
 }
-
-// Salvar API Key no localStorage
-apiKeyInput.addEventListener('change', () => {
-    localStorage.setItem('gemini_api_key', apiKeyInput.value);
-});
-
-// Carregar API Key salva
-window.addEventListener('load', () => {
-    const savedKey = localStorage.getItem('gemini_api_key');
-    if (savedKey) {
-        apiKeyInput.value = savedKey;
-    }
-});
