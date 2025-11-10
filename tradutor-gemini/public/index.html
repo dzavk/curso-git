@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tradutor Adaptivo Gemini</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌍 Tradutor Adaptivo Gemini</h1>
+            <p class="subtitle">Traduza seus roteiros para múltiplos idiomas com IA</p>
+        </header>
+
+        <div class="card">
+            <div class="section">
+                <label for="apiKey">
+                    <span class="label-icon">🔑</span>
+                    Sua API Key do Gemini
+                </label>
+                <input
+                    type="password"
+                    id="apiKey"
+                    placeholder="Cole sua API key aqui..."
+                    class="input-field"
+                >
+                <small class="help-text">
+                    Obtenha sua chave em: <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a>
+                </small>
+            </div>
+
+            <div class="section">
+                <label>
+                    <span class="label-icon">🗣️</span>
+                    Selecione os Idiomas de Tradução
+                </label>
+                <div class="languages-grid">
+                    <label class="language-checkbox">
+                        <input type="checkbox" value="es" data-lang="Espanhol">
+                        <span>🇪🇸 Espanhol</span>
+                    </label>
+                    <label class="language-checkbox">
+                        <input type="checkbox" value="en" data-lang="Inglês">
+                        <span>🇺🇸 Inglês</span>
+                    </label>
+                    <label class="language-checkbox">
+                        <input type="checkbox" value="ru" data-lang="Russo">
+                        <span>🇷🇺 Russo</span>
+                    </label>
+                    <label class="language-checkbox">
+                        <input type="checkbox" value="ar" data-lang="Árabe">
+                        <span>🇸🇦 Árabe</span>
+                    </label>
+                    <label class="language-checkbox">
+                        <input type="checkbox" value="tr" data-lang="Turco">
+                        <span>🇹🇷 Turco</span>
+                    </label>
+                    <label class="language-checkbox">
+                        <input type="checkbox" value="pl" data-lang="Polonês">
+                        <span>🇵🇱 Polonês</span>
+                    </label>
+                    <label class="language-checkbox">
+                        <input type="checkbox" value="de" data-lang="Alemão">
+                        <span>🇩🇪 Alemão</span>
+                    </label>
+                    <label class="language-checkbox">
+                        <input type="checkbox" value="fr" data-lang="Francês">
+                        <span>🇫🇷 Francês</span>
+                    </label>
+                    <label class="language-checkbox">
+                        <input type="checkbox" value="it" data-lang="Italiano">
+                        <span>🇮🇹 Italiano</span>
+                    </label>
+                    <label class="language-checkbox">
+                        <input type="checkbox" value="ro" data-lang="Romeno">
+                        <span>🇷🇴 Romeno</span>
+                    </label>
+                </div>
+                <button id="selectAll" class="btn-secondary">Selecionar Todos</button>
+            </div>
+
+            <div class="section">
+                <label>
+                    <span class="label-icon">📝</span>
+                    Seu Roteiro em Português
+                </label>
+                <div class="input-tabs">
+                    <button class="tab-btn active" data-tab="text">Colar Texto</button>
+                    <button class="tab-btn" data-tab="file">Fazer Upload</button>
+                </div>
+
+                <div id="textTab" class="tab-content active">
+                    <textarea
+                        id="scriptText"
+                        placeholder="Cole seu roteiro aqui..."
+                        rows="10"
+                        class="input-field"
+                    ></textarea>
+                </div>
+
+                <div id="fileTab" class="tab-content">
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <input type="file" id="fileInput" accept=".txt,.doc,.docx,.srt" hidden>
+                        <div class="upload-content">
+                            <span class="upload-icon">📁</span>
+                            <p>Clique ou arraste um arquivo aqui</p>
+                            <small>Formatos: TXT, DOC, DOCX, SRT</small>
+                        </div>
+                        <div id="fileName" class="file-name"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <button id="translateBtn" class="btn-primary">
+                    <span class="btn-icon">🚀</span>
+                    Traduzir Agora
+                </button>
+            </div>
+        </div>
+
+        <div id="progressSection" class="card" style="display: none;">
+            <h3>⏳ Traduzindo...</h3>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+            <p id="progressText" class="progress-text">Iniciando...</p>
+        </div>
+
+        <div id="resultsSection" class="card" style="display: none;">
+            <h3>✅ Traduções Concluídas!</h3>
+
+            <div class="download-all-section">
+                <h4>Baixar Todas as Traduções</h4>
+                <div class="button-group">
+                    <button class="btn-download" onclick="downloadAll('txt')">
+                        <span>📄</span> Baixar Todos (TXT)
+                    </button>
+                    <button class="btn-download" onclick="downloadAll('docx')">
+                        <span>📘</span> Baixar Todos (DOCX)
+                    </button>
+                    <button class="btn-download" onclick="downloadAll('srt')">
+                        <span>🎬</span> Baixar Todos (SRT)
+                    </button>
+                </div>
+            </div>
+
+            <div id="translationResults"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
