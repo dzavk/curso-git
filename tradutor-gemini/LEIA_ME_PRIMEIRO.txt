@@ -1,0 +1,37 @@
+═══════════════════════════════════════════════════════════
+   🌐 TRADUTOR ADAPTATIVO GEMINI - Multi Idiomas
+═══════════════════════════════════════════════════════════
+
+📁 O QUE TEM NESTA PASTA:
+
+1. GUIA_FACIL.md
+   → Leia primeiro! Tem todas as instruções
+
+2. INICIAR_TRADUTOR.bat
+   → Clique 2 vezes aqui para abrir o tradutor!
+
+3. tradutor.py
+   → O programa (não precisa mexer)
+
+4. requirements.txt
+   → Lista de bibliotecas (não precisa mexer)
+
+═══════════════════════════════════════════════════════════
+
+🚀 COMEÇAR RAPIDINHO:
+
+1. Leia o GUIA_FACIL.md (todas as instruções)
+
+2. Instale Python + bibliotecas (só 1 vez)
+
+3. Clique 2 vezes em INICIAR_TRADUTOR.bat
+
+4. Abra o navegador em: localhost:5000
+
+5. Use o tradutor! 🎉
+
+═══════════════════════════════════════════════════════════
+
+💝 Qualquer dúvida, me chama!
+
+═══════════════════════════════════════════════════════════
