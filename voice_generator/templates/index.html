@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Vozes - Edge TTS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .scripts-container {
+            display: grid;
+            gap: 15px;
+        }
+
+        .script-item {
+            position: relative;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+
+        .script-item textarea {
+            min-height: 80px;
+            resize: vertical;
+            background: white;
+        }
+
+        .script-number {
+            position: absolute;
+            top: -12px;
+            left: 15px;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .buttons-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-item.error {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .result-info {
+            flex: 1;
+        }
+
+        .result-preview {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .voice-info {
+            background: #e7f3ff;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #004085;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .buttons-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎙️ Gerador de Vozes</h1>
+            <p>Gere múltiplos áudios de alta qualidade com Edge TTS</p>
+        </div>
+
+        <div class="content">
+            <!-- Seleção de Idioma -->
+            <div class="section">
+                <h2 class="section-title">1. Selecione o Idioma</h2>
+                <div class="form-group">
+                    <label for="language">Idioma:</label>
+                    <select id="language">
+                        <option value="">Carregando idiomas...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Seleção de Voz -->
+            <div class="section">
+                <h2 class="section-title">2. Escolha a Voz</h2>
+                <div class="form-group">
+                    <label for="voice">Voz:</label>
+                    <select id="voice" disabled>
+                        <option value="">Selecione um idioma primeiro</option>
+                    </select>
+                    <div id="voiceInfo" class="voice-info" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Roteiros -->
+            <div class="section">
+                <h2 class="section-title">3. Adicione os Roteiros</h2>
+                <div id="scriptsContainer" class="scripts-container">
+                    <!-- Scripts serão adicionados aqui dinamicamente -->
+                </div>
+                <div class="buttons-group">
+                    <button class="btn btn-secondary" onclick="addScript()">➕ Adicionar Roteiro</button>
+                    <button class="btn btn-secondary" onclick="removeLastScript()">➖ Remover Último</button>
+                </div>
+            </div>
+
+            <!-- Botão de Gerar -->
+            <div class="section">
+                <button class="btn btn-primary" onclick="generateAudios()" id="generateBtn" style="width: 100%; font-size: 1.2em; padding: 15px;">
+                    🎵 Gerar Todos os Áudios
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Gerando áudios... Por favor, aguarde.</p>
+            </div>
+
+            <!-- Resultados -->
+            <div class="results" id="results">
+                <h2 class="section-title">✅ Resultados</h2>
+                <div id="resultsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scriptCount = 0;
+        const MAX_SCRIPTS = 20;
+
+        // Carregar idiomas ao iniciar
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadLanguages();
+            // Adicionar 5 campos de roteiro inicialmente
+            for (let i = 0; i < 5; i++) {
+                addScript();
+            }
+        });
+
+        async function loadLanguages() {
+            try {
+                const response = await fetch('/api/languages');
+                const data = await response.json();
+
+                if (data.success) {
+                    const select = document.getElementById('language');
+                    select.innerHTML = '<option value="">Selecione um idioma</option>';
+
+                    data.languages.forEach(lang => {
+                        const option = document.createElement('option');
+                        option.value = lang.code;
+                        option.textContent = lang.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar idiomas:', error);
+                alert('Erro ao carregar idiomas. Por favor, recarregue a página.');
+            }
+        }
+
+        async function loadVoices(language) {
+            const voiceSelect = document.getElementById('voice');
+            const voiceInfo = document.getElementById('voiceInfo');
+
+            voiceSelect.innerHTML = '<option value="">Carregando vozes...</option>';
+            voiceSelect.disabled = true;
+            voiceInfo.style.display = 'none';
+
+            try {
+                const response = await fetch(`/api/voices?language=${language}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    voiceSelect.innerHTML = '<option value="">Selecione uma voz</option>';
+
+                    data.voices.forEach(voice => {
+                        const option = document.createElement('option');
+                        option.value = voice.name;
+                        option.textContent = voice.displayName;
+                        voiceSelect.appendChild(option);
+                    });
+
+                    voiceSelect.disabled = false;
+                    voiceInfo.style.display = 'block';
+                    voiceInfo.textContent = `${data.voices.length} vozes disponíveis para este idioma`;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar vozes:', error);
+                voiceSelect.innerHTML = '<option value="">Erro ao carregar vozes</option>';
+            }
+        }
+
+        document.getElementById('language').addEventListener('change', (e) => {
+            if (e.target.value) {
+                loadVoices(e.target.value);
+            } else {
+                document.getElementById('voice').innerHTML = '<option value="">Selecione um idioma primeiro</option>';
+                document.getElementById('voice').disabled = true;
+                document.getElementById('voiceInfo').style.display = 'none';
+            }
+        });
+
+        function addScript() {
+            if (scriptCount >= MAX_SCRIPTS) {
+                alert(`Máximo de ${MAX_SCRIPTS} roteiros permitido.`);
+                return;
+            }
+
+            scriptCount++;
+            const container = document.getElementById('scriptsContainer');
+
+            const scriptDiv = document.createElement('div');
+            scriptDiv.className = 'script-item';
+            scriptDiv.innerHTML = `
+                <span class="script-number">Roteiro ${scriptCount}</span>
+                <textarea
+                    id="script${scriptCount}"
+                    placeholder="Digite o texto para o roteiro ${scriptCount}..."
+                    rows="4"
+                ></textarea>
+            `;
+
+            container.appendChild(scriptDiv);
+        }
+
+        function removeLastScript() {
+            if (scriptCount <= 0) return;
+
+            const container = document.getElementById('scriptsContainer');
+            container.removeChild(container.lastChild);
+            scriptCount--;
+        }
+
+        async function generateAudios() {
+            const language = document.getElementById('language').value;
+            const voice = document.getElementById('voice').value;
+
+            if (!language) {
+                alert('Por favor, selecione um idioma.');
+                return;
+            }
+
+            if (!voice) {
+                alert('Por favor, selecione uma voz.');
+                return;
+            }
+
+            // Coletar todos os roteiros
+            const scripts = [];
+            for (let i = 1; i <= scriptCount; i++) {
+                const textarea = document.getElementById(`script${i}`);
+                if (textarea && textarea.value.trim()) {
+                    scripts.push(textarea.value.trim());
+                }
+            }
+
+            if (scripts.length === 0) {
+                alert('Por favor, adicione pelo menos um roteiro.');
+                return;
+            }
+
+            // Mostrar loading
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('results').classList.remove('active');
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        scripts: scripts,
+                        voice: voice,
+                        language: language
+                    })
+                });
+
+                const data = await response.json();
+
+                // Esconder loading
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('generateBtn').disabled = false;
+
+                if (data.success) {
+                    showResults(data);
+                } else {
+                    alert('Erro ao gerar áudios: ' + data.error);
+                }
+
+            } catch (error) {
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('generateBtn').disabled = false;
+                alert('Erro ao gerar áudios: ' + error.message);
+            }
+        }
+
+        function showResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const container = document.getElementById('resultsContainer');
+
+            container.innerHTML = `
+                <div class="alert alert-success">
+                    ${data.message}
+                </div>
+            `;
+
+            data.files.forEach(file => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = file.success ? 'result-item' : 'result-item error';
+
+                if (file.success) {
+                    resultDiv.innerHTML = `
+                        <div class="result-info">
+                            <strong>Áudio ${file.index}</strong>
+                            <div class="result-preview">${file.text_preview}</div>
+                        </div>
+                        <a href="/api/download/${file.filename}" class="btn btn-success" download>
+                            ⬇️ Download
+                        </a>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result-info">
+                            <strong>Áudio ${file.index} - ERRO</strong>
+                            <div class="result-preview">${file.error}</div>
+                        </div>
+                    `;
+                }
+
+                container.appendChild(resultDiv);
+            });
+
+            resultsDiv.classList.add('active');
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
