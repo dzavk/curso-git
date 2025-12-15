@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Vozes - Edge TTS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .script-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            position: relative;
+        }
+
+        .script-item .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .script-item .remove-btn:hover {
+            background: #ff3838;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #48dbfb;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #34c9e8;
+        }
+
+        .btn-success {
+            background: #1dd1a1;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #10ac84;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #scripts-container {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .result-item {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #4caf50;
+        }
+
+        .result-item .title {
+            font-weight: 600;
+            color: #2e7d32;
+        }
+
+        .result-item .download-btn {
+            background: #4caf50;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .result-item .download-btn:hover {
+            background: #45a049;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .counter {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ Gerador de Vozes com Edge TTS</h1>
+        <p class="subtitle">Gere múltiplos áudios de forma rápida e gratuita</p>
+
+        <div id="alert-container"></div>
+
+        <div class="section">
+            <div class="section-title">1. Selecione o Idioma e a Voz</div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="language">Idioma:</label>
+                    <select id="language">
+                        <option value="">Carregando idiomas...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="voice">Voz:</label>
+                    <select id="voice">
+                        <option value="">Selecione um idioma primeiro</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="rate">Velocidade:</label>
+                    <select id="rate">
+                        <option value="+0%">Normal</option>
+                        <option value="-25%">Mais lenta</option>
+                        <option value="-50%">Muito lenta</option>
+                        <option value="+25%">Mais rápida</option>
+                        <option value="+50%">Muito rápida</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="volume">Volume:</label>
+                    <select id="volume">
+                        <option value="+0%">Normal</option>
+                        <option value="-25%">Baixo</option>
+                        <option value="-50%">Muito baixo</option>
+                        <option value="+25%">Alto</option>
+                        <option value="+50%">Muito alto</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                2. Adicione os Roteiros
+                <span class="counter" id="script-counter">0 roteiro(s)</span>
+            </div>
+
+            <div id="scripts-container"></div>
+
+            <button class="btn btn-secondary" onclick="addScript()">+ Adicionar Roteiro</button>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="generateAudios()" id="generate-btn">
+                🎵 Gerar Todos os Áudios
+            </button>
+            <button class="btn btn-secondary" onclick="clearAll()">
+                🗑️ Limpar Tudo
+            </button>
+        </div>
+
+        <div id="results" class="results" style="display: none;">
+            <div class="section-title">✅ Áudios Gerados</div>
+            <div id="results-container"></div>
+        </div>
+    </div>
+
+    <script>
+        let scriptCount = 0;
+
+        // Carrega idiomas ao iniciar
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadLanguages();
+            addScript(); // Adiciona o primeiro roteiro
+        });
+
+        async function loadLanguages() {
+            try {
+                const response = await fetch('/api/languages');
+                const languages = await response.json();
+
+                const select = document.getElementById('language');
+                select.innerHTML = '<option value="">Selecione um idioma</option>';
+
+                languages.forEach(lang => {
+                    const option = document.createElement('option');
+                    option.value = lang.code;
+                    option.textContent = lang.name;
+                    select.appendChild(option);
+                });
+
+                select.addEventListener('change', loadVoices);
+            } catch (error) {
+                showAlert('Erro ao carregar idiomas: ' + error.message, 'error');
+            }
+        }
+
+        async function loadVoices() {
+            const language = document.getElementById('language').value;
+            const voiceSelect = document.getElementById('voice');
+
+            if (!language) {
+                voiceSelect.innerHTML = '<option value="">Selecione um idioma primeiro</option>';
+                return;
+            }
+
+            voiceSelect.innerHTML = '<option value="">Carregando vozes...</option>';
+
+            try {
+                const response = await fetch(`/api/voices?language=${language}`);
+                const voices = await response.json();
+
+                voiceSelect.innerHTML = '<option value="">Selecione uma voz</option>';
+
+                voices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voice.name;
+                    option.textContent = voice.displayName;
+                    voiceSelect.appendChild(option);
+                });
+            } catch (error) {
+                showAlert('Erro ao carregar vozes: ' + error.message, 'error');
+            }
+        }
+
+        function addScript() {
+            scriptCount++;
+            const container = document.getElementById('scripts-container');
+
+            const scriptDiv = document.createElement('div');
+            scriptDiv.className = 'script-item';
+            scriptDiv.id = `script-${scriptCount}`;
+            scriptDiv.innerHTML = `
+                <button class="remove-btn" onclick="removeScript(${scriptCount})">✕ Remover</button>
+                <div class="form-group">
+                    <label>Título do Roteiro ${scriptCount}:</label>
+                    <input type="text" class="script-title" placeholder="Ex: Introdução, Capítulo 1, etc.">
+                </div>
+                <div class="form-group">
+                    <label>Texto do Roteiro ${scriptCount}:</label>
+                    <textarea class="script-text" placeholder="Digite o texto que será convertido em áudio..."></textarea>
+                </div>
+            `;
+
+            container.appendChild(scriptDiv);
+            updateCounter();
+        }
+
+        function removeScript(id) {
+            const script = document.getElementById(`script-${id}`);
+            if (script) {
+                script.remove();
+                updateCounter();
+            }
+        }
+
+        function updateCounter() {
+            const count = document.querySelectorAll('.script-item').length;
+            document.getElementById('script-counter').textContent = `${count} roteiro(s)`;
+        }
+
+        function clearAll() {
+            if (confirm('Tem certeza que deseja limpar todos os roteiros?')) {
+                document.getElementById('scripts-container').innerHTML = '';
+                scriptCount = 0;
+                updateCounter();
+                addScript();
+            }
+        }
+
+        async function generateAudios() {
+            const voice = document.getElementById('voice').value;
+            const rate = document.getElementById('rate').value;
+            const volume = document.getElementById('volume').value;
+
+            if (!voice) {
+                showAlert('Por favor, selecione uma voz antes de gerar os áudios.', 'error');
+                return;
+            }
+
+            const scriptItems = document.querySelectorAll('.script-item');
+            const scripts = [];
+
+            scriptItems.forEach(item => {
+                const title = item.querySelector('.script-title').value.trim();
+                const text = item.querySelector('.script-text').value.trim();
+
+                if (text) {
+                    scripts.push({
+                        title: title || 'Sem título',
+                        text: text
+                    });
+                }
+            });
+
+            if (scripts.length === 0) {
+                showAlert('Por favor, adicione pelo menos um roteiro com texto.', 'error');
+                return;
+            }
+
+            const generateBtn = document.getElementById('generate-btn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Gerando áudios...';
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        scripts: scripts,
+                        voice: voice,
+                        rate: rate,
+                        volume: volume
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    displayResults(result.files);
+                } else {
+                    showAlert('Erro: ' + (result.error || 'Erro desconhecido'), 'error');
+                }
+            } catch (error) {
+                showAlert('Erro ao gerar áudios: ' + error.message, 'error');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🎵 Gerar Todos os Áudios';
+            }
+        }
+
+        function displayResults(files) {
+            const resultsDiv = document.getElementById('results');
+            const resultsContainer = document.getElementById('results-container');
+
+            resultsContainer.innerHTML = '';
+
+            files.forEach(file => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <div class="title">🎵 ${file.title}</div>
+                    <a href="${file.url}" class="download-btn" download>⬇️ Download</a>
+                `;
+                resultsContainer.appendChild(resultItem);
+            });
+
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

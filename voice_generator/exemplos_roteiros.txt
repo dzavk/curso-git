@@ -1,0 +1,35 @@
+# Exemplos de Roteiros para Teste
+
+## Roteiro 1 - Introdução
+Olá! Bem-vindo ao nosso gerador de vozes. Este é um exemplo de texto que será convertido em áudio usando inteligência artificial.
+
+## Roteiro 2 - Tutorial
+Neste tutorial, você aprenderá como usar o sistema de forma simples e rápida. Basta selecionar o idioma, escolher uma voz e adicionar seus textos.
+
+## Roteiro 3 - Apresentação
+Meu nome é assistente virtual e estou aqui para ajudá-lo a criar conteúdos em áudio de forma automática e gratuita.
+
+## Roteiro 4 - Audiobook
+Era uma vez, em um reino muito distante, onde a tecnologia e a magia se encontravam. As pessoas usavam vozes sintéticas para contar histórias maravilhosas.
+
+## Roteiro 5 - Notícia
+Atenção! Acabamos de desenvolver um novo sistema de geração de vozes que permite criar múltiplos áudios simultaneamente. Esta tecnologia está disponível gratuitamente.
+
+## Roteiro 6 - Podcast
+Sejam bem-vindos ao nosso podcast sobre tecnologia. Hoje vamos falar sobre inteligência artificial e como ela está transformando a criação de conteúdo.
+
+## Roteiro 7 - E-learning
+Vamos aprender sobre os conceitos básicos de programação. Primeiro, entenderemos o que são variáveis e como utilizá-las em nossos códigos.
+
+## Roteiro 8 - Meditação
+Respire fundo. Inspire pelo nariz, expire pela boca. Sinta seu corpo relaxar. Deixe todos os pensamentos fluírem como nuvens no céu.
+
+## Roteiro 9 - Anúncio
+Aproveite nossa oferta especial! Por tempo limitado, você tem acesso a recursos premium totalmente gratuitos. Não perca esta oportunidade.
+
+## Roteiro 10 - Conclusão
+Esperamos que você tenha gostado desta demonstração. Continue explorando as possibilidades do nosso gerador de vozes. Até a próxima!
+
+---
+
+💡 Dica: Copie estes textos e cole na interface web para testar o sistema!
