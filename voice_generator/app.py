@@ -2,6 +2,7 @@
 """
 Gerador de Vozes com Edge TTS
 Aplicativo web para gerar múltiplos áudios a partir de roteiros
+Com divisão automática em chunks de 2000 caracteres para processamento mais rápido
 """
 
 import os
@@ -10,10 +11,14 @@ import edge_tts
 from flask import Flask, render_template, request, jsonify, send_file
 from datetime import datetime
 import json
+import tempfile
+from pydub import AudioSegment
+import re
 
 app = Flask(__name__)
 app.config['OUTPUTS_FOLDER'] = 'outputs'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
+app.config['CHUNK_SIZE'] = 2000  # Tamanho máximo de cada parte do texto
 
 # Criar pasta de outputs se não existir
 os.makedirs(app.config['OUTPUTS_FOLDER'], exist_ok=True)
@@ -36,15 +41,124 @@ def get_voices_sync():
     return VOICES_CACHE
 
 
-async def generate_audio(text, voice, output_path):
-    """Gera um arquivo de áudio usando Edge TTS"""
+def split_text_smart(text, max_length=2000):
+    """
+    Divide o texto em partes de até max_length caracteres,
+    tentando quebrar em pontos naturais (frases completas)
+    """
+    if len(text) <= max_length:
+        return [text]
+
+    chunks = []
+    current_chunk = ""
+
+    # Dividir por sentenças (pontos, exclamações, interrogações)
+    sentences = re.split(r'([.!?]+\s+)', text)
+
+    for i in range(0, len(sentences), 2):
+        sentence = sentences[i]
+        separator = sentences[i + 1] if i + 1 < len(sentences) else ""
+
+        full_sentence = sentence + separator
+
+        # Se a sentença sozinha é maior que max_length, dividir por palavras
+        if len(full_sentence) > max_length:
+            words = full_sentence.split()
+            temp_chunk = ""
+
+            for word in words:
+                if len(temp_chunk) + len(word) + 1 <= max_length:
+                    temp_chunk += word + " "
+                else:
+                    if temp_chunk:
+                        chunks.append(temp_chunk.strip())
+                    temp_chunk = word + " "
+
+            if temp_chunk:
+                current_chunk = temp_chunk
+        else:
+            # Se adicionar esta sentença ultrapassar o limite, salvar chunk atual
+            if len(current_chunk) + len(full_sentence) > max_length:
+                if current_chunk:
+                    chunks.append(current_chunk.strip())
+                current_chunk = full_sentence
+            else:
+                current_chunk += full_sentence
+
+    # Adicionar o último chunk
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+
+    return chunks
+
+
+async def generate_audio_chunk(text, voice, output_path):
+    """Gera um arquivo de áudio para um chunk de texto"""
     communicate = edge_tts.Communicate(text, voice)
     await communicate.save(output_path)
 
 
+async def generate_audio_chunks_parallel(chunks, voice, temp_dir):
+    """Gera áudios de todos os chunks em paralelo"""
+    tasks = []
+    temp_files = []
+
+    for i, chunk in enumerate(chunks):
+        temp_file = os.path.join(temp_dir, f"chunk_{i:03d}.mp3")
+        temp_files.append(temp_file)
+        task = generate_audio_chunk(chunk, voice, temp_file)
+        tasks.append(task)
+
+    # Executar todas as tarefas em paralelo
+    await asyncio.gather(*tasks)
+
+    return temp_files
+
+
+def concatenate_audio_files(audio_files, output_path):
+    """Concatena múltiplos arquivos de áudio em um único arquivo"""
+    if len(audio_files) == 1:
+        # Se houver apenas um arquivo, apenas copiar
+        os.rename(audio_files[0], output_path)
+        return
+
+    # Combinar todos os áudios
+    combined = AudioSegment.empty()
+
+    for audio_file in audio_files:
+        audio = AudioSegment.from_mp3(audio_file)
+        combined += audio
+
+    # Exportar o áudio combinado
+    combined.export(output_path, format="mp3")
+
+
+async def generate_audio_with_chunking(text, voice, output_path):
+    """
+    Gera áudio dividindo o texto em chunks de 2000 caracteres,
+    processa em paralelo e concatena o resultado final
+    """
+    # Dividir texto em chunks
+    chunks = split_text_smart(text, app.config['CHUNK_SIZE'])
+
+    print(f"  📊 Texto dividido em {len(chunks)} partes")
+
+    # Criar diretório temporário para chunks
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Gerar áudios de todos os chunks em paralelo
+        print(f"  🚀 Gerando {len(chunks)} áudios em paralelo...")
+        temp_files = await generate_audio_chunks_parallel(chunks, voice, temp_dir)
+
+        # Concatenar todos os áudios
+        print(f"  🔗 Concatenando {len(chunks)} áudios...")
+        concatenate_audio_files(temp_files, output_path)
+
+    print(f"  ✅ Áudio final gerado!")
+
+
 def generate_audio_sync(text, voice, output_path):
-    """Versão síncrona para gerar áudio"""
-    asyncio.run(generate_audio(text, voice, output_path))
+    """Versão síncrona para gerar áudio com chunking"""
+    asyncio.run(generate_audio_with_chunking(text, voice, output_path))
 
 
 @app.route('/')
@@ -141,7 +255,7 @@ def get_voices_by_language():
 
 @app.route('/api/generate', methods=['POST'])
 def generate_audios():
-    """Gera múltiplos áudios a partir dos roteiros"""
+    """Gera múltiplos áudios a partir dos roteiros com processamento em chunks"""
     try:
         data = request.get_json()
 
@@ -175,27 +289,42 @@ def generate_audios():
             filename = f"audio_{timestamp}_{idx:02d}.mp3"
             output_path = os.path.join(app.config['OUTPUTS_FOLDER'], filename)
 
-            # Gerar áudio
+            # Gerar áudio com chunking
             try:
+                print(f"\n🎙️  Processando roteiro {idx}/{len(scripts)}:")
+                print(f"  📝 Tamanho: {len(script)} caracteres")
+
                 generate_audio_sync(script, voice, output_path)
+
+                # Obter tamanho do arquivo gerado
+                file_size = os.path.getsize(output_path)
+                file_size_mb = file_size / (1024 * 1024)
+
                 generated_files.append({
                     'index': idx,
                     'filename': filename,
                     'text_preview': script[:50] + ('...' if len(script) > 50 else ''),
+                    'text_length': len(script),
+                    'file_size': f"{file_size_mb:.2f} MB",
                     'success': True
                 })
             except Exception as e:
+                print(f"  ❌ Erro: {str(e)}")
                 generated_files.append({
                     'index': idx,
                     'filename': None,
                     'text_preview': script[:50] + ('...' if len(script) > 50 else ''),
+                    'text_length': len(script),
                     'success': False,
                     'error': str(e)
                 })
 
+        success_count = len([f for f in generated_files if f["success"]])
+        print(f"\n✅ Concluído! {success_count}/{len(generated_files)} áudios gerados com sucesso\n")
+
         return jsonify({
             'success': True,
-            'message': f'{len([f for f in generated_files if f["success"]])} áudios gerados com sucesso',
+            'message': f'{success_count} áudios gerados com sucesso',
             'files': generated_files
         })
 
@@ -231,6 +360,7 @@ if __name__ == '__main__':
     print("=" * 60)
     print("🎙️  GERADOR DE VOZES COM EDGE TTS")
     print("=" * 60)
+    print("⚡ Com processamento paralelo em chunks de 2000 caracteres")
     print("\n📝 Carregando vozes disponíveis...")
 
     # Pré-carregar vozes
@@ -239,6 +369,10 @@ if __name__ == '__main__':
 
     print("\n🌐 Iniciando servidor web...")
     print("📍 Acesse: http://localhost:5000")
+    print("\n💡 Recursos:")
+    print("  • Divisão automática de textos grandes")
+    print("  • Processamento paralelo para maior velocidade")
+    print("  • Concatenação automática dos áudios")
     print("\n⌨️  Pressione CTRL+C para encerrar\n")
 
     app.run(debug=True, host='0.0.0.0', port=5000)
