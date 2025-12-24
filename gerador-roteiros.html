@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Roteiros Multilíngue</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Gerador de Roteiros Multilíngue</h1>
+            <p>Crie roteiros únicos em 5 idiomas diferentes usando IA</p>
+        </header>
+
+        <div class="config-section">
+            <h2>⚙️ Configuração</h2>
+
+            <div class="form-group">
+                <label for="apiKey">API Key do Google Gemini:</label>
+                <input type="password" id="apiKey" placeholder="Cole sua API key aqui">
+                <small>Obtenha sua chave em: <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a></small>
+            </div>
+
+            <div class="form-group">
+                <label for="customPrompt">Prompt Customizado:</label>
+                <textarea id="customPrompt" rows="6" placeholder="Digite seu prompt aqui. Use {titulo} e {idioma} como placeholders.&#10;&#10;Exemplo:&#10;Crie um roteiro detalhado para um vídeo sobre '{titulo}' em {idioma}. O roteiro deve ter introdução, desenvolvimento e conclusão, com duração estimada de 5-7 minutos."></textarea>
+                <div class="button-group">
+                    <button onclick="salvarPrompt()" class="btn-secondary">💾 Salvar Prompt</button>
+                    <button onclick="resetarPrompt()" class="btn-secondary">🔄 Resetar para Padrão</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="generator-section">
+            <h2>🎯 Gerador de Roteiros</h2>
+
+            <div class="form-group">
+                <label for="titulo">Título do Roteiro:</label>
+                <input type="text" id="titulo" placeholder="Ex: Como criar vídeos virais no YouTube">
+            </div>
+
+            <button onclick="gerarRoteiros()" class="btn-primary">✨ Gerar Roteiros em 5 Idiomas</button>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Gerando roteiros... Aguarde um momento</p>
+        </div>
+
+        <div id="results" class="results-section" style="display: none;">
+            <h2>📝 Roteiros Gerados</h2>
+
+            <div class="roteiro-card">
+                <div class="roteiro-header">
+                    <h3>🇧🇷 Português</h3>
+                    <button onclick="copiarRoteiro('portugues')" class="btn-copy">📋 Copiar</button>
+                </div>
+                <div id="roteiro-portugues" class="roteiro-content"></div>
+            </div>
+
+            <div class="roteiro-card">
+                <div class="roteiro-header">
+                    <h3>🇪🇸 Espanhol</h3>
+                    <button onclick="copiarRoteiro('espanhol')" class="btn-copy">📋 Copiar</button>
+                </div>
+                <div id="roteiro-espanhol" class="roteiro-content"></div>
+            </div>
+
+            <div class="roteiro-card">
+                <div class="roteiro-header">
+                    <h3>🇺🇸 Inglês</h3>
+                    <button onclick="copiarRoteiro('ingles')" class="btn-copy">📋 Copiar</button>
+                </div>
+                <div id="roteiro-ingles" class="roteiro-content"></div>
+            </div>
+
+            <div class="roteiro-card">
+                <div class="roteiro-header">
+                    <h3>🇷🇺 Russo</h3>
+                    <button onclick="copiarRoteiro('russo')" class="btn-copy">📋 Copiar</button>
+                </div>
+                <div id="roteiro-russo" class="roteiro-content"></div>
+            </div>
+
+            <div class="roteiro-card">
+                <div class="roteiro-header">
+                    <h3>🇸🇦 Árabe</h3>
+                    <button onclick="copiarRoteiro('arabe')" class="btn-copy">📋 Copiar</button>
+                </div>
+                <div id="roteiro-arabe" class="roteiro-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
