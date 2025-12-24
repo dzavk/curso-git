@@ -1,17 +1,19 @@
 // Importar a biblioteca do Google Generative AI via CDN
 import { GoogleGenerativeAI } from 'https://esm.run/@google/generative-ai';
 
-// Prompt padrão
-const PROMPT_PADRAO = `Crie um roteiro detalhado e profissional para um vídeo sobre '{titulo}' em {idioma}.
+// Prompt padrão para roteiros longos
+const PROMPT_PADRAO = `Crie um roteiro EXTENSO e DETALHADO para um vídeo sobre '{titulo}' em {idioma}.
 
-O roteiro deve conter:
-- Introdução cativante (gancho inicial)
-- Desenvolvimento com pontos principais bem estruturados
+O roteiro deve ter aproximadamente 5000-10000 palavras e conter:
+- Introdução cativante e elaborada (gancho inicial forte)
+- Desenvolvimento profundo com múltiplos pontos principais bem detalhados
+- Exemplos práticos e histórias
+- Transições suaves entre seções
 - Conclusão impactante com call-to-action
-- Duração estimada: 5-7 minutos
-- Tom: engajador e informativo
+- Tom: engajador, profissional e informativo
 
-O roteiro deve ser único e criativo, diferente dos outros idiomas, mas mantendo o mesmo tema e propósito.`;
+O roteiro deve ser único e criativo, diferente dos outros idiomas, mas mantendo o mesmo tema e propósito.
+IMPORTANTE: Este é um roteiro LONGO e COMPLETO, não economize em detalhes.`;
 
 // Idiomas suportados
 const IDIOMAS = {
@@ -65,6 +67,66 @@ window.resetarPrompt = function() {
     }
 };
 
+// Atualizar mensagem de progresso
+function atualizarProgresso(mensagem) {
+    const loadingElement = document.getElementById('loading');
+    let progressText = loadingElement.querySelector('p');
+    if (progressText) {
+        progressText.innerHTML = mensagem;
+    }
+}
+
+// Função para gerar um roteiro longo em 2 partes
+async function gerarRoteiroLongo(model, titulo, customPrompt, idioma) {
+    // PARTE 1: Gerar primeira metade do roteiro
+    atualizarProgresso(`🎬 Gerando ${idioma.flag} ${idioma.nome} - Parte 1/2...`);
+
+    const promptParte1 = customPrompt
+        .replace(/{titulo}/g, titulo)
+        .replace(/{idioma}/g, idioma.nome) +
+        `\n\nIMPORTANTE: Esta é a PRIMEIRA PARTE do roteiro. Crie a introdução completa e a primeira metade do desenvolvimento.
+        Termine em um ponto natural, mas SEM concluir o roteiro. A segunda parte continuará daqui.
+        Escreva aproximadamente 4000-5000 palavras nesta primeira parte.`;
+
+    const resultParte1 = await model.generateContent(promptParte1);
+    const responseParte1 = await resultParte1.response;
+    const textoParte1 = responseParte1.text();
+
+    // Pequena pausa entre as requisições
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // PARTE 2: Continuar e finalizar o roteiro
+    atualizarProgresso(`🎬 Gerando ${idioma.flag} ${idioma.nome} - Parte 2/2...`);
+
+    const promptParte2 = `Continue e FINALIZE o roteiro sobre '${titulo}' em ${idioma.nome}.
+
+Esta é a SEGUNDA E ÚLTIMA PARTE do roteiro.
+
+Aqui está a primeira parte que você já escreveu:
+
+---
+${textoParte1}
+---
+
+Agora CONTINUE de onde parou e complete o roteiro com:
+- Continuação natural do desenvolvimento
+- Todos os pontos restantes importantes
+- Conclusão impactante e completa
+- Call-to-action final
+
+Escreva aproximadamente 4000-5000 palavras nesta segunda parte para completar o roteiro.
+NÃO repita o que já foi escrito, apenas CONTINUE e FINALIZE.`;
+
+    const resultParte2 = await model.generateContent(promptParte2);
+    const responseParte2 = await resultParte2.response;
+    const textoParte2 = responseParte2.text();
+
+    // Juntar as duas partes
+    const roteiroCompleto = textoParte1 + '\n\n' + textoParte2;
+
+    return roteiroCompleto;
+}
+
 // Função principal para gerar roteiros
 window.gerarRoteiros = async function() {
     const apiKey = document.getElementById('apiKey').value.trim();
@@ -93,50 +155,53 @@ window.gerarRoteiros = async function() {
     // Mostrar loading
     document.getElementById('loading').style.display = 'block';
     document.getElementById('results').style.display = 'none';
+    atualizarProgresso('🚀 Iniciando geração de roteiros longos...');
 
     try {
         // Inicializar API do Gemini
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-        // Gerar roteiros para cada idioma
-        const promessas = Object.keys(IDIOMAS).map(async (idiomaKey) => {
+        // Gerar roteiros para cada idioma SEQUENCIALMENTE (um por vez)
+        const resultados = [];
+
+        for (const idiomaKey of Object.keys(IDIOMAS)) {
             const idioma = IDIOMAS[idiomaKey];
-            const promptFinal = customPrompt
-                .replace(/{titulo}/g, titulo)
-                .replace(/{idioma}/g, idioma.nome);
 
             try {
-                const result = await model.generateContent(promptFinal);
-                const response = await result.response;
-                const texto = response.text();
+                const roteiroCompleto = await gerarRoteiroLongo(model, titulo, customPrompt, idioma);
 
-                return {
+                resultados.push({
                     idioma: idiomaKey,
-                    roteiro: texto,
+                    roteiro: roteiroCompleto,
                     sucesso: true
-                };
+                });
+
+                // Exibir o roteiro assim que estiver pronto
+                document.getElementById(`roteiro-${idiomaKey}`).textContent = roteiroCompleto;
+
+                // Mostrar resultados parciais
+                document.getElementById('results').style.display = 'block';
+
             } catch (erro) {
                 console.error(`Erro ao gerar roteiro em ${idioma.nome}:`, erro);
-                return {
+                resultados.push({
                     idioma: idiomaKey,
-                    roteiro: `Erro ao gerar roteiro: ${erro.message}`,
+                    roteiro: `❌ Erro ao gerar roteiro: ${erro.message}`,
                     sucesso: false
-                };
+                });
+                document.getElementById(`roteiro-${idiomaKey}`).textContent = `❌ Erro: ${erro.message}`;
             }
-        });
 
-        // Aguardar todos os roteiros serem gerados
-        const resultados = await Promise.all(promessas);
+            // Pausa entre idiomas para não sobrecarregar a API
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
 
-        // Exibir resultados
-        resultados.forEach(({ idioma, roteiro }) => {
-            document.getElementById(`roteiro-${idioma}`).textContent = roteiro;
-        });
-
-        // Mostrar seção de resultados
+        // Finalizar
         document.getElementById('loading').style.display = 'none';
         document.getElementById('results').style.display = 'block';
+
+        atualizarProgresso('✅ Todos os roteiros foram gerados!');
 
         // Scroll suave até os resultados
         document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
