@@ -1,11 +1,11 @@
 # 🎬 Gerador de Roteiros Multilíngue
 
-Aplicação web para gerar roteiros LONGOS de vídeos em 5 idiomas diferentes usando a API do Google Gemini.
+Aplicação web para gerar roteiros MUITO LONGOS de vídeos em 5 idiomas diferentes usando a API do Google Gemini.
 
 ## 🌟 Funcionalidades
 
-- ✨ Geração automática de roteiros EXTENSOS usando IA (Google Gemini)
-- 🚀 **Sistema Inteligente em 2 Etapas**: Gera roteiros de até 10.000 palavras
+- ✨ Geração automática de roteiros MUITO EXTENSOS usando IA (Google Gemini)
+- 🚀 **Sistema Inteligente em 2 Etapas**: Gera roteiros de 10.000-12.000 palavras
 - 🌍 Suporte para 5 idiomas: Português, Espanhol, Inglês, Russo e Árabe
 - 🎯 Cada roteiro é único, mas mantém o mesmo tema e propósito
 - 💾 Salva suas configurações (API Key e Prompt customizado)
@@ -15,25 +15,25 @@ Aplicação web para gerar roteiros LONGOS de vídeos em 5 idiomas diferentes us
 
 ## 🧠 Como Funciona o Sistema de 2 Etapas
 
-O gerador usa uma tecnologia inteligente para criar roteiros muito longos (até 10.000 palavras):
+O gerador usa uma tecnologia inteligente para criar roteiros MUITO longos (10.000-12.000 palavras):
 
 ### Processo de Geração:
 
-1. **Etapa 1 - Primeira Metade (4.000-5.000 palavras)**
+1. **Etapa 1 - Primeira Metade (5.000-6.000 palavras)**
    - O sistema gera a introdução completa
-   - Desenvolve a primeira metade do conteúdo
+   - Desenvolve a primeira metade do conteúdo com muitos detalhes
    - Para em um ponto natural, sem concluir
 
-2. **Etapa 2 - Continuação e Finalização (4.000-5.000 palavras)**
+2. **Etapa 2 - Continuação e Finalização (5.000-6.000 palavras)**
    - O sistema recebe a primeira parte como contexto
    - Continua de onde parou naturalmente
-   - Completa o desenvolvimento
+   - Completa o desenvolvimento com mais exemplos
    - Adiciona conclusão impactante e call-to-action
 
 3. **Entrega Final**
    - As duas partes são automaticamente unidas
    - Você recebe o roteiro completo de uma só vez
-   - Total: 8.000-10.000 palavras por roteiro
+   - Total: 10.000-12.000 palavras por roteiro
 
 ### Por que 2 Etapas?
 
@@ -44,8 +44,8 @@ O gerador usa uma tecnologia inteligente para criar roteiros muito longos (até 
 
 ### Tempo de Geração:
 
-- 📝 **Por idioma**: 3-5 minutos (2 etapas + processamento)
-- 🌍 **Total (5 idiomas)**: ~15-25 minutos
+- 📝 **Por idioma**: 4-6 minutos (2 etapas + processamento)
+- 🌍 **Total (5 idiomas)**: ~25-30 minutos
 - ⏰ Os roteiros aparecem conforme ficam prontos!
 
 ---
@@ -149,30 +149,33 @@ Tom: casual e divertido, para público jovem.
 
 ### Otimizando Seu Prompt
 
-Para roteiros de 8.000-10.000 palavras, considere incluir:
+Para roteiros de 10.000-12.000 palavras, considere incluir:
 
 ```
-Crie um roteiro EXTENSO e COMPLETO sobre '{titulo}' em {idioma}.
+Crie um roteiro MUITO EXTENSO e COMPLETO sobre '{titulo}' em {idioma}.
 
-Duração esperada: 30-45 minutos de conteúdo
-Palavras: aproximadamente 8.000-10.000 palavras
+Duração esperada: 40-60 minutos de conteúdo
+Palavras: aproximadamente 10.000-12.000 palavras
 
 Estrutura DETALHADA:
-1. Introdução (1.500 palavras)
+1. Introdução (2.000 palavras)
    - Hook impactante
    - Apresentação do tema
    - O que será abordado
+   - Contexto e importância
 
-2. Desenvolvimento (6.000 palavras)
-   - 5-7 pontos principais
-   - Exemplos reais e cases
-   - Histórias e analogias
+2. Desenvolvimento (8.000 palavras)
+   - 7-10 pontos principais
+   - Exemplos reais e cases extensos
+   - Histórias e analogias detalhadas
    - Dados e estatísticas
-   - Dicas práticas
+   - Dicas práticas e aplicáveis
+   - Passo a passo quando aplicável
 
-3. Conclusão (1.500 palavras)
+3. Conclusão (2.000 palavras)
    - Resumo dos pontos-chave
    - Lições aprendidas
+   - Recapitulação importante
    - Call-to-action
    - Próximos passos
 
@@ -184,10 +187,11 @@ IMPORTANTE: Seja MUITO detalhado, use exemplos práticos e não economize em exp
 
 ### Durante a Geração
 
-- ✅ **Seja paciente**: 15-25 minutos é normal para 5 idiomas
-- ✅ **Acompanhe o progresso**: Veja qual parte está sendo gerada
+- ✅ **Seja paciente**: 25-30 minutos é normal para 5 idiomas completos
+- ✅ **Acompanhe o progresso**: Veja qual idioma e parte está sendo gerada
 - ✅ **Não feche a página**: Os roteiros aparecem conforme ficam prontos
 - ✅ **Mantenha a aba ativa**: Evite minimizar ou trocar de aba
+- ✅ **Cada roteiro leva 4-6 minutos**: São 10.000-12.000 palavras!
 
 ## ❓ Solução de Problemas
 
@@ -197,16 +201,16 @@ IMPORTANTE: Seja MUITO detalhado, use exemplos práticos e não economize em exp
 - Tente gerar uma nova chave
 
 ### Roteiros ainda estão curtos
-- Use palavras como "EXTENSO", "DETALHADO", "COMPLETO" no prompt
-- Especifique quantidade de palavras (ex: "8.000-10.000 palavras")
-- Peça exemplos, histórias e casos práticos
-- O sistema já está configurado para roteiros longos!
+- Use palavras como "MUITO EXTENSO", "DETALHADO", "COMPLETO" no prompt
+- Especifique quantidade de palavras (ex: "10.000-12.000 palavras")
+- Peça exemplos, histórias e casos práticos extensos
+- O sistema já está configurado para roteiros de 10-12k palavras!
 
 ### Demora muito para gerar
-- **ISSO É NORMAL para roteiros longos!**
-- Sistema de 2 etapas leva 3-5 minutos por idioma
-- Total de 15-25 minutos para 5 idiomas completos
-- Cada roteiro tem 8.000-10.000 palavras!
+- **ISSO É NORMAL para roteiros muito longos!**
+- Sistema de 2 etapas leva 4-6 minutos por idioma
+- Total de 25-30 minutos para 5 idiomas completos
+- Cada roteiro tem 10.000-12.000 palavras!
 - Não feche a página, acompanhe o progresso
 
 ### Erro durante a geração

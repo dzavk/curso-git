@@ -2,9 +2,9 @@
 import { GoogleGenerativeAI } from 'https://esm.run/@google/generative-ai';
 
 // Prompt padrão para roteiros longos
-const PROMPT_PADRAO = `Crie um roteiro EXTENSO e DETALHADO para um vídeo sobre '{titulo}' em {idioma}.
+const PROMPT_PADRAO = `Crie um roteiro MUITO EXTENSO e DETALHADO para um vídeo sobre '{titulo}' em {idioma}.
 
-O roteiro deve ter aproximadamente 5000-10000 palavras e conter:
+O roteiro deve ter aproximadamente 10.000-12.000 palavras e conter:
 - Introdução cativante e elaborada (gancho inicial forte)
 - Desenvolvimento profundo com múltiplos pontos principais bem detalhados
 - Exemplos práticos e histórias
@@ -13,7 +13,7 @@ O roteiro deve ter aproximadamente 5000-10000 palavras e conter:
 - Tom: engajador, profissional e informativo
 
 O roteiro deve ser único e criativo, diferente dos outros idiomas, mas mantendo o mesmo tema e propósito.
-IMPORTANTE: Este é um roteiro LONGO e COMPLETO, não economize em detalhes.`;
+IMPORTANTE: Este é um roteiro MUITO LONGO e COMPLETO, não economize em detalhes. Seja o mais extenso e detalhado possível.`;
 
 // Idiomas suportados
 const IDIOMAS = {
@@ -86,7 +86,8 @@ async function gerarRoteiroLongo(model, titulo, customPrompt, idioma) {
         .replace(/{idioma}/g, idioma.nome) +
         `\n\nIMPORTANTE: Esta é a PRIMEIRA PARTE do roteiro. Crie a introdução completa e a primeira metade do desenvolvimento.
         Termine em um ponto natural, mas SEM concluir o roteiro. A segunda parte continuará daqui.
-        Escreva aproximadamente 4000-5000 palavras nesta primeira parte.`;
+        Escreva aproximadamente 5.000-6.000 palavras nesta primeira parte.
+        Seja MUITO detalhado, use exemplos extensos, histórias completas e explicações profundas.`;
 
     const resultParte1 = await model.generateContent(promptParte1);
     const responseParte1 = await resultParte1.response;
@@ -111,11 +112,13 @@ ${textoParte1}
 Agora CONTINUE de onde parou e complete o roteiro com:
 - Continuação natural do desenvolvimento
 - Todos os pontos restantes importantes
+- Mais exemplos práticos e casos reais
 - Conclusão impactante e completa
 - Call-to-action final
 
-Escreva aproximadamente 4000-5000 palavras nesta segunda parte para completar o roteiro.
-NÃO repita o que já foi escrito, apenas CONTINUE e FINALIZE.`;
+Escreva aproximadamente 5.000-6.000 palavras nesta segunda parte para completar o roteiro.
+Seja MUITO detalhado e extenso. O roteiro final deve ter entre 10.000-12.000 palavras no total.
+NÃO repita o que já foi escrito, apenas CONTINUE e FINALIZE com muitos detalhes.`;
 
     const resultParte2 = await model.generateContent(promptParte2);
     const responseParte2 = await resultParte2.response;
